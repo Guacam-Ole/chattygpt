@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script language="JavaScript">
+        function AddId(id) {
+            var x = document.getElementById("ids");
+            var option = document.createElement("option");
+            option.value = id;
+            option.text = id;
+            x.add(option);
+        }
+        function GetIds() {
+            fetch("/ids").then(function (response) {
+                return response.json();
+            }).then(function (data) {
+                data.forEach(AddId);
+            }).catch(function (err) {
+                console.log('Fetch Error :-S', err);
+            });
+        }
+    </script>
+</head>
+    <body onload="GetIds()">
+
+    <form id="aiform" action="/ask" method="post">
+        Ask your question:<br />
+        <textarea id="question" cols="100" rows="5"></textarea><br />
+        <select id="ids"></select>
+        <input type="submit" /><br /><br />
+        <label id="answer"></label>
+    </form>
+
+    <script language="JavaScript">
+        document.forms['aiform'].addEventListener('submit', (event) => {
+            event.preventDefault();
+            question = document.getElementById('question');
+            answer = document.getElementById('answer');
+            id = document.getElementById('ids');
+            // TODO do something here to show user that form is being submitted
+            fetch(event.target.action + "/"+ids.value , {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST',
+                body: JSON.stringify(question.value)
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                return response.json(); // or response.text() or whatever the server sends
+            }).then((body) => {
+                answer.innerHTML = body;
+            }).catch((error) => {
+                // TODO handle error
+            });
+
+        });
+    </script>
+</body>
+</html>
+
